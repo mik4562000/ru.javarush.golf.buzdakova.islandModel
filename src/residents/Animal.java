@@ -7,36 +7,38 @@ import island.Location;
 import java.util.*;
 
 public abstract class Animal {
-    public static double WEIGHT;
-    public static int MAX_NUMBER_PER_LOCATION;
-    public static int MOVEMENT_SPEED;
-    public static double FOOD_SATURATION_WEIGHT;
-    public static Map<Class<? extends Animal>, Integer> foodProbability;
+    protected double WEIGHT;
+    protected int MAX_NUMBER_PER_LOCATION;
+    protected int MOVEMENT_SPEED;
+    protected double FOOD_SATURATION_WEIGHT;
 
-    private static double getWeight() {
+    protected Map<Class<? extends Animal>, Integer> foodProbability;
+    private Random random = new Random();
+
+    private double getWeight() {
         return WEIGHT;
     }
 
-    public static int getMaxNumberPerLocation() {
+    public int getMaxNumberPerLocation() {
         return MAX_NUMBER_PER_LOCATION;
     }
 
-    private static int getMovementSpeed() {
+    private int getMovementSpeed() {
         return MOVEMENT_SPEED;
     }
 
-    protected static double getFoodSaturationWeight() {
+    protected double getFoodSaturationWeight() {
         return FOOD_SATURATION_WEIGHT;
     }
 
-/*    private double getSumProbability() {
-        return foodProbability.values().stream().mapToInt(i -> i).sum();
+    public Map<Class<? extends Animal>, Integer> getFoodProbability() {
+        return foodProbability;
     }
-*/
+
     public void eat(Location currentLocation) {
         List<Animal> foodList = currentLocation.getAvailableAnimals(this);
         double saturation = 0;
-        while (saturation < getFoodSaturationWeight() && !foodList.isEmpty()) {
+        while (saturation < getFoodSaturationWeight() && foodList != null && !foodList.isEmpty()) {
             Animal food = chooseFood(foodList);
             if (food != null) {
                 saturation = saturation + food.getWeight();
@@ -48,19 +50,12 @@ public abstract class Animal {
         if (saturation == 0) {
             currentLocation.remove(this);
         }
-
-        /*Class<? extends Animal> aClass = this.getClass();
-        Class<? extends Animal> aClass1 = victim.getClass();
-        boolean isEat = true;
-        if (true) {
-        }*/
     }
 
-    protected Animal chooseFood(List<Animal> foodList) {
-        Random random = new Random();
+    private Animal chooseFood(List<Animal> foodList) {
         int probability = random.nextInt(100) + 1;
         for (var food : foodList) {
-            if (probability <= foodProbability.get(food.getClass())) {
+            if (probability <= getFoodProbability().get(food.getClass())) {
                 return food;
             }
         }
@@ -71,23 +66,13 @@ public abstract class Animal {
         currentLocation.babyAnimalBirth(this);
     }
 
-    public void chooseDirection() {
-
-    }
-
     public void move(Location currentLocation, Island island) {
-
-        //Coordinates coordinates = new Coordinates(currentLocation.coordinates);
-        //coordinates.x = changeCoordinate(coordinates.x, deltaX);
         Coordinates coordinates = findNextCoordinates(currentLocation.getCoordinates(), island);
-
         currentLocation.remove(this);
         island.moveToOtherLocation(coordinates, this);
-
     }
 
     private int changeCoordinate(int coordinate, int delta, int boundary) {
-        Random random = new Random();
         int chooseDirection = random.nextInt(100) + 1;
         if (chooseDirection < 51) {
             coordinate = coordinate - delta;
@@ -105,9 +90,7 @@ public abstract class Animal {
         return coordinate;
     }
 
-    protected Coordinates findNextCoordinates(Coordinates currentCoordinates, Island island) {
-
-        Random random = new Random();
+    private Coordinates findNextCoordinates(Coordinates currentCoordinates, Island island) {
         int numberOfSteps = random.nextInt(getMovementSpeed() + 1);
         if (numberOfSteps == 0) {
             return currentCoordinates;
@@ -119,13 +102,6 @@ public abstract class Animal {
         int y = changeCoordinate(currentCoordinates.getY(), deltaY, island.locations[0].length);
 
         return new Coordinates(x, y);
-    }
-
-    //public abstract void print();
-
-
-    public void print() {
-        System.out.println(WEIGHT);
     }
 
     @Override

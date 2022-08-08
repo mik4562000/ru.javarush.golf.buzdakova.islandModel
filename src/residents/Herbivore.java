@@ -11,7 +11,7 @@ public class Herbivore extends Animal {
         List<Plant> plants = currentLocation.getPlants();
         double saturation = 0;
         while (saturation != getFoodSaturationWeight() && !plants.isEmpty()) {
-            saturation = saturation + Plant.WEIGHT;
+            saturation = saturation + Plant.getWeight();
             currentLocation.removePlant();
         }
         // if not satisfied then eat animals

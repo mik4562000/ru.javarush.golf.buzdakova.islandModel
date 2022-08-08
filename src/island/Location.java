@@ -1,5 +1,6 @@
 package island;
 
+import org.jetbrains.annotations.NotNull;
 import residents.*;
 
 import java.lang.reflect.Constructor;
@@ -56,7 +57,14 @@ public class Location {
             Animal animal = animals.get(i);
             animal.eat(this);
             animal.breed(this);
-            animal.move(this, null);
+            Island islandByLocation = MapOfIslands.getIslandByLocation(this);
+            if (islandByLocation != null) {
+                animal.move(this, islandByLocation);
+            }
+        }
+        for (int i = 0; i < plants.size() / 2; i++) {
+            boolean isSucceed = addPlant();
+            if (!isSucceed) break;
         }
     }
 
@@ -69,7 +77,18 @@ public class Location {
     }
 
     public void add(Animal animal) {
-        animals.add(animal);
+        long sameAnimalCount = animals.stream().filter(a -> a.getClass() == animal.getClass()).count();
+        if (sameAnimalCount < animal.getMaxNumberPerLocation()) {
+            animals.add(animal);
+        }
+    }
+
+    public boolean addPlant() {
+        if (plants.size() < Plant.getMaxNumberPerLocation()) {
+            plants.add(new Plant());
+            return true;
+        }
+        return false;
     }
 
     public void babyAnimalBirth(Animal animal) {
@@ -85,21 +104,20 @@ public class Location {
             }
         }
         if (babyAnimal != null) {
-            animals.add((Animal) babyAnimal);
+            add((Animal) babyAnimal);
         }
     }
 
     public void generatePopulation() {
-        // loop for all possible animals
-        // for every animal get number and create this number of animals
         Random random = new Random();
         for (var clazz : animalsPopulation) {
-            Constructor<?> constructor = null;
+            Constructor<?> constructor;
             try {
                 constructor = clazz.getConstructor();
                 Animal newAnimal = (Animal) constructor.newInstance();
                 animals.add(newAnimal);
-                int numberPerLocation = random.nextInt((Integer) clazz.getDeclaredMethod("getMaxNumberPerLocation", null).invoke(newAnimal, null));
+                int numberPerLocation = random.nextInt(newAnimal.getMaxNumberPerLocation());
+                //int numberPerLocation = random.nextInt((Integer) clazz.getDeclaredMethod("getMaxNumberPerLocation", null).invoke(newAnimal, null));
                 for (int i = 0; i < numberPerLocation; i++) {
                     animals.add((Animal) constructor.newInstance());
                 }
@@ -109,15 +127,15 @@ public class Location {
         }
     }
 
-    public List<Animal> getAvailableAnimals(Animal animal) {
-        //get all available animals for this animal to eat
+    public List<Animal> getAvailableAnimals(@NotNull Animal animal) {
+        if (animal.getFoodProbability() == null) return null;
         List<Animal> foodList = new ArrayList<>();
         for (Animal food : animals) {
-            if (animal.foodProbability.containsKey(food.getClass())) {
+            if (animal.getFoodProbability().containsKey(food.getClass())) {
                 foodList.add(food);
             }
         }
-        return foodList;
+        return foodList.isEmpty() ? null : foodList;
     }
 
 

@@ -1,8 +1,20 @@
 package residents;
 
-public class Plant {
-    public static int WEIGHT = 1;
-    public static int MAX_NUMBER_PER_LOCATION = 200;
+import island.Location;
 
-    public int amount = 1;
+public class Plant {
+    private static final int WEIGHT = 1;
+    private static final int MAX_NUMBER_PER_LOCATION = 200;
+
+    public void thrive(Location location) {
+        location.addPlant();
+    }
+
+    public static int getWeight() {
+        return WEIGHT;
+    }
+
+    public static int getMaxNumberPerLocation() {
+        return MAX_NUMBER_PER_LOCATION;
+    }
 }

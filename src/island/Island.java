@@ -14,12 +14,13 @@ public class Island {
                 location.generatePopulation();
             }
         }
+        MapOfIslands.addIsland(this);
     }
 
     public void print() {
-        for (int i = 0; i < locations.length; i++) {
-            for (int j = 0; j < locations[i].length; j++) {
-                System.out.print(locations[i][j]);
+        for (Location[] locationRow : locations) {
+            for (Location location : locationRow) {
+                System.out.println(location);
             }
             System.out.println();
         }
