@@ -7,28 +7,28 @@ import island.Location;
 import java.util.*;
 
 public abstract class Animal {
-    protected double WEIGHT;
-    protected int MAX_NUMBER_PER_LOCATION;
-    protected int MOVEMENT_SPEED;
-    protected double FOOD_SATURATION_WEIGHT;
+    protected double weight;
+    protected int maxNumberPerLocation;
+    protected int movementSpeed;
+    protected double foodSaturationWeight;
 
     protected Map<Class<? extends Animal>, Integer> foodProbability;
-    private Random random = new Random();
+    private final Random random = new Random();
 
     private double getWeight() {
-        return WEIGHT;
+        return weight;
     }
 
     public int getMaxNumberPerLocation() {
-        return MAX_NUMBER_PER_LOCATION;
+        return maxNumberPerLocation;
     }
 
     private int getMovementSpeed() {
-        return MOVEMENT_SPEED;
+        return movementSpeed;
     }
 
     protected double getFoodSaturationWeight() {
-        return FOOD_SATURATION_WEIGHT;
+        return foodSaturationWeight;
     }
 
     public Map<Class<? extends Animal>, Integer> getFoodProbability() {
@@ -77,13 +77,11 @@ public abstract class Animal {
         if (chooseDirection < 51) {
             coordinate = coordinate - delta;
             if (coordinate < 0) {
-                //return secondDelta - coordinate;
                 coordinate = 0;
             }
         } else {
             coordinate = coordinate + delta;
             if (coordinate >= boundary) {
-                //return secondDelta + coordinate - boundary + 1;
                 coordinate = boundary - 1;
             }
         }

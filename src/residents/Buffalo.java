@@ -2,10 +2,10 @@ package residents;
 
 public class Buffalo extends Herbivore{
     {
-        WEIGHT = 700;
-        MAX_NUMBER_PER_LOCATION = 10;
-        MOVEMENT_SPEED = 3;
-        FOOD_SATURATION_WEIGHT = 100;
+        weight = 700;
+        maxNumberPerLocation = 10;
+        movementSpeed = 3;
+        foodSaturationWeight = 100;
     }
 
     @Override

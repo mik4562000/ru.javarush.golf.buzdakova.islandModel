@@ -32,6 +32,7 @@ public class Location {
     private final Coordinates coordinates;
     private final List<Plant> plants;
     private final List<Animal> animals;
+    private final Random random = new Random();
 
     public Location(int x, int y) {
         coordinates = new Coordinates(x, y);
@@ -109,7 +110,7 @@ public class Location {
     }
 
     public void generatePopulation() {
-        Random random = new Random();
+
         for (var clazz : animalsPopulation) {
             Constructor<?> constructor;
             try {
@@ -117,7 +118,6 @@ public class Location {
                 Animal newAnimal = (Animal) constructor.newInstance();
                 animals.add(newAnimal);
                 int numberPerLocation = random.nextInt(newAnimal.getMaxNumberPerLocation());
-                //int numberPerLocation = random.nextInt((Integer) clazz.getDeclaredMethod("getMaxNumberPerLocation", null).invoke(newAnimal, null));
                 for (int i = 0; i < numberPerLocation; i++) {
                     animals.add((Animal) constructor.newInstance());
                 }

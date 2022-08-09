@@ -1,14 +1,13 @@
 package residents;
 
-import java.util.HashMap;
 import java.util.Map;
 
 public class Wolf extends Predator {
     {
-        WEIGHT = 50;
-        MAX_NUMBER_PER_LOCATION = 30;
-        MOVEMENT_SPEED = 3;
-        FOOD_SATURATION_WEIGHT = 8;
+        weight = 50;
+        maxNumberPerLocation = 30;
+        movementSpeed = 3;
+        foodSaturationWeight = 8;
         foodProbability = Map.of(
                 Mouse.class, 80,
                 Sheep.class, 70,

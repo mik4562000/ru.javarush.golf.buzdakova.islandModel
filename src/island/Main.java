@@ -6,7 +6,8 @@ import java.util.concurrent.TimeUnit;
 
 public class Main {
     public static void main(String[] args) {
-        Island island = new Island(5, 5);
+        IslandProperties.initialize();
+        Island island = new Island(IslandProperties.getIslandHeight(), IslandProperties.getIslandWidth());
         island.print();
         /*ScheduledExecutorService executorService = Executors.newScheduledThreadPool(1);
         executorService.scheduleAtFixedRate(() -> {
@@ -23,9 +24,7 @@ public class Main {
             e.printStackTrace();
         }
 
-        executorService.shutdown();
-*/
-
+        }, 0, IslandProperties.getSchedulePeriod(), TimeUnit.SECONDS);
     }
 
 }

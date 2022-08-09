@@ -4,10 +4,10 @@ import java.util.Map;
 
 public class Boa extends Predator {
     {
-        WEIGHT = 15;
-        MAX_NUMBER_PER_LOCATION = 30;
-        MOVEMENT_SPEED = 1;
-        FOOD_SATURATION_WEIGHT = 3;
+        weight = 15;
+        maxNumberPerLocation = 30;
+        movementSpeed = 1;
+        foodSaturationWeight = 3;
         foodProbability = Map.of(
                 Mouse.class, 40,
                 Rabbit.class, 20,
