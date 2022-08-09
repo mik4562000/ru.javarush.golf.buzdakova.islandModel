@@ -5,9 +5,8 @@ import residents.*;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class Location {
 
@@ -34,6 +33,7 @@ public class Location {
     private final List<Animal> animals;
     private final Random random = new Random();
 
+
     public Location(int x, int y) {
         coordinates = new Coordinates(x, y);
         this.plants = new ArrayList<>();
@@ -50,7 +50,29 @@ public class Location {
 
     @Override
     public String toString() {
-        return " | " + coordinates.getX() + " , " + coordinates.getY() + " animals = " + animals + " | ";
+        return " | " + coordinates.getX() +
+                " , " + coordinates.getY() +
+                " animals = " + printAnimals() +
+                " plants = " + plants.size() + " | ";
+    }
+
+    private String printAnimals() {
+
+        Map<Class<? extends Animal>, Long> grouped =
+                animals.stream().
+                        collect(Collectors.groupingBy((o -> o.getClass()), Collectors.counting()));
+
+        StringBuilder builder = new StringBuilder();
+        for (Class<? extends Animal> animalClass : grouped.keySet()) {
+            try {
+                Object o = animalClass.getConstructor().newInstance();
+                builder.append(" " + o.toString() + " = " + grouped.get(animalClass));
+            } catch (NoSuchMethodException | InstantiationException | IllegalAccessException | InvocationTargetException e) {
+                e.printStackTrace();
+            }
+        }
+
+        return builder.toString();
     }
 
     public void prosper() {
@@ -63,7 +85,8 @@ public class Location {
                 animal.move(this, islandByLocation);
             }
         }
-        for (int i = 0; i < plants.size() / 2; i++) {
+        int plantsAmount = random.nextInt(Plant.getMaxNumberPerLocation());
+        for (int i = 0; i < plantsAmount; i++) {
             boolean isSucceed = addPlant();
             if (!isSucceed) break;
         }
@@ -127,6 +150,11 @@ public class Location {
             } catch (NoSuchMethodException | InstantiationException | IllegalAccessException | InvocationTargetException e) {
                 e.printStackTrace();
             }
+        }
+
+        int plantsAmount = random.nextInt(Plant.getMaxNumberPerLocation());
+        for (int i = 0; i < plantsAmount; i++) {
+            addPlant();
         }
     }
 
