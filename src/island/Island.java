@@ -2,6 +2,10 @@ package island;
 
 import residents.Animal;
 
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
 public class Island {
     public final Location[][] locations;
 
@@ -36,10 +40,21 @@ public class Island {
     }
 
     public void liveAnotherDay() {
-        for (Location[] locationRow : locations) {
-            for (Location location : locationRow) {
-                location.prosper();
+        try {
+            ExecutorService executorService = Executors.newWorkStealingPool(4);
+            CountDownLatch countDownLatch = new CountDownLatch(locations.length * locations[0].length);
+            for (Location[] locationRow : locations) {
+                for (Location location : locationRow) {
+                    executorService.execute(() -> {
+                        location.prosper();
+                        countDownLatch.countDown();
+                    });
+                }
             }
+            countDownLatch.await();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         }
     }
 }
+

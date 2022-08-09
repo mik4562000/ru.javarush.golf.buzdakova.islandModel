@@ -69,7 +69,7 @@ public class Location {
         }
     }
 
-    public void remove(Animal animal) {
+    public synchronized void remove(Animal animal) {
         animals.remove(animal);
     }
 
@@ -77,7 +77,7 @@ public class Location {
         plants.remove(0);
     }
 
-    public void add(Animal animal) {
+    public synchronized void add(Animal animal) {
         long sameAnimalCount = animals.stream().filter(a -> a.getClass() == animal.getClass()).count();
         if (sameAnimalCount < animal.getMaxNumberPerLocation()) {
             animals.add(animal);
@@ -93,7 +93,10 @@ public class Location {
     }
 
     public void babyAnimalBirth(Animal animal) {
-        long sameAnimalsCount = animals.stream().filter(a -> a.getClass() == animal.getClass()).count();
+        long sameAnimalsCount = 0;
+        synchronized (this) {
+            sameAnimalsCount = animals.stream().filter(a -> a.getClass() == animal.getClass()).count();
+        }
         Object babyAnimal = null;
         if (sameAnimalsCount > 1) {
             try {
@@ -127,7 +130,7 @@ public class Location {
         }
     }
 
-    public List<Animal> getAvailableAnimals(@NotNull Animal animal) {
+    public synchronized List<Animal> getAvailableAnimals(@NotNull Animal animal) {
         if (animal.getFoodProbability() == null) return null;
         List<Animal> foodList = new ArrayList<>();
         for (Animal food : animals) {
