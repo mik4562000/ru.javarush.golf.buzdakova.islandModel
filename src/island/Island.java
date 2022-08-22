@@ -56,5 +56,13 @@ public class Island {
             e.printStackTrace();
         }
     }
+
+    public void prepareLocationsForNewDay() {
+        for (Location[] locationRow : locations) {
+            for (Location location : locationRow) {
+                location.prepareAnimalListForNewDay();
+            }
+        }
+    }
 }
 

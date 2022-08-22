@@ -7,6 +7,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class Location {
 
@@ -30,14 +31,17 @@ public class Location {
 
     private final Coordinates coordinates;
     private final List<Plant> plants;
-    private final List<Animal> animals;
+    private List<Animal> animals;
+    private final List<Animal> appearedAnimals;
+    private final List<Animal> departedAnimals;
     private final Random random = new Random();
-
 
     public Location(int x, int y) {
         coordinates = new Coordinates(x, y);
         this.plants = new ArrayList<>();
         this.animals = new ArrayList<>();
+        this.appearedAnimals = new ArrayList<>();
+        this.departedAnimals = new ArrayList<>();
     }
 
     public Coordinates getCoordinates() {
@@ -76,8 +80,9 @@ public class Location {
     }
 
     public void prosper() {
-        for (int i = 0; i < animals.size(); i++) {
-            Animal animal = animals.get(i);
+        for (Animal animal : animals) {
+            if (!animal.isPresent()) continue;
+
             animal.eat(this);
             animal.breed(this);
             Island islandByLocation = MapOfIslands.getIslandByLocation(this);
@@ -85,6 +90,7 @@ public class Location {
                 animal.move(this, islandByLocation);
             }
         }
+
         int plantsAmount = random.nextInt(Plant.getMaxNumberPerLocation());
         for (int i = 0; i < plantsAmount; i++) {
             boolean isSucceed = addPlant();
@@ -92,8 +98,12 @@ public class Location {
         }
     }
 
-    public synchronized void remove(Animal animal) {
-        animals.remove(animal);
+    public void remove(Animal animal) {
+        animal.setPresent(false);
+    }
+
+    public void depart(Animal animal) {
+        departedAnimals.add(animal);
     }
 
     public void removePlant() {
@@ -101,9 +111,9 @@ public class Location {
     }
 
     public synchronized void add(Animal animal) {
-        long sameAnimalCount = animals.stream().filter(a -> a.getClass() == animal.getClass()).count();
+        long sameAnimalCount = getLiveAnimals().stream().filter(a -> a.getClass() == animal.getClass()).count();
         if (sameAnimalCount < animal.getMaxNumberPerLocation()) {
-            animals.add(animal);
+            appearedAnimals.add(animal);
         }
     }
 
@@ -116,10 +126,10 @@ public class Location {
     }
 
     public void babyAnimalBirth(Animal animal) {
-        long sameAnimalsCount = 0;
-        synchronized (this) {
-            sameAnimalsCount = animals.stream().filter(a -> a.getClass() == animal.getClass()).count();
-        }
+        long sameAnimalsCount;
+
+        sameAnimalsCount = getLiveAnimals().stream().filter(a -> a.getClass() == animal.getClass() && a.isPresent()).count();
+
         Object babyAnimal = null;
         if (sameAnimalsCount > 1) {
             try {
@@ -158,16 +168,28 @@ public class Location {
         }
     }
 
-    public synchronized List<Animal> getAvailableAnimals(@NotNull Animal animal) {
+    public List<Animal> getAvailableAnimalsForFood(@NotNull Animal animal) {
         if (animal.getFoodProbability() == null) return null;
         List<Animal> foodList = new ArrayList<>();
-        for (Animal food : animals) {
-            if (animal.getFoodProbability().containsKey(food.getClass())) {
+        for (Animal food : getLiveAnimals()) {
+            if (animal.isPresent() && animal.getFoodProbability().containsKey(food.getClass())) {
                 foodList.add(food);
             }
         }
         return foodList.isEmpty() ? null : foodList;
     }
 
+    private synchronized List<Animal> getLiveAnimals() {
+        return Stream.concat(animals.stream(), appearedAnimals.stream())
+                .filter(a -> a.isPresent())
+                .filter(a -> !(departedAnimals.contains(a)))
+                .collect(Collectors.toList());
+    }
+
+    public void prepareAnimalListForNewDay() {
+        animals = getLiveAnimals().stream().toList();
+        appearedAnimals.clear();
+        departedAnimals.clear();
+    }
 
 }

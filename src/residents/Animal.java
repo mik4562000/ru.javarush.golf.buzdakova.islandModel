@@ -12,6 +12,8 @@ public abstract class Animal {
     protected int movementSpeed;
     protected double foodSaturationWeight;
 
+    private boolean isPresent = true;
+
     protected Map<Class<? extends Animal>, Integer> foodProbability;
     private final Random random = new Random();
 
@@ -35,8 +37,16 @@ public abstract class Animal {
         return foodProbability;
     }
 
+    public boolean isPresent() {
+        return isPresent;
+    }
+
+    public void setPresent(boolean present) {
+        isPresent = present;
+    }
+
     public void eat(Location currentLocation) {
-        List<Animal> foodList = currentLocation.getAvailableAnimals(this);
+        List<Animal> foodList = currentLocation.getAvailableAnimalsForFood(this);
         double saturation = 0;
         while (saturation < getFoodSaturationWeight() && foodList != null && !foodList.isEmpty()) {
             Animal food = chooseFood(foodList);
@@ -68,8 +78,10 @@ public abstract class Animal {
 
     public void move(Location currentLocation, Island island) {
         Coordinates coordinates = findNextCoordinates(currentLocation.getCoordinates(), island);
-        currentLocation.remove(this);
-        island.moveToOtherLocation(coordinates, this);
+        if (!currentLocation.getCoordinates().equals(coordinates)) {
+            currentLocation.depart(this);
+            island.moveToOtherLocation(coordinates, this);
+        }
     }
 
     private int changeCoordinate(int coordinate, int delta, int boundary) {
@@ -106,5 +118,6 @@ public abstract class Animal {
     public String toString() {
         return "Animal{}";
     }
+
 }
 

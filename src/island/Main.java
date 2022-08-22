@@ -16,6 +16,7 @@ public class Main {
         executorService.scheduleAtFixedRate(() -> {
             System.out.printf("It is a new day %d%n", i.getAndIncrement());
             island.liveAnotherDay();
+            island.prepareLocationsForNewDay();
             island.print();
 
         }, 0, IslandProperties.getSchedulePeriod(), TimeUnit.SECONDS);
